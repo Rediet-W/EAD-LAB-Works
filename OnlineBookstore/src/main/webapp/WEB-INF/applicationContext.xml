@@ -1,0 +1,13 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Define the DBConnectionManager bean -->
+    <bean id="dbConnectionManager" class="com.example.todo.DBConnectionManager" />
+
+    <!-- Define the TaskRegistrationServlet bean with dependency injection -->
+    <bean id="taskRegistrationServlet" class="com.example.todo.TaskRegistrationServlet">
+        <constructor-arg ref="dbConnectionManager" />
+    </bean>
+</beans>

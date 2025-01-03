@@ -1,0 +1,38 @@
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="5.0">
+ 	
+
+    <servlet>
+        <servlet-name>BookRegistrationServlet</servlet-name>
+        <servlet-class>com.exercise.book.BookRegistrationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BookRegistrationServlet</servlet-name>
+        <url-pattern>/registerBook</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+    <servlet-name>DeleteBookServlet</servlet-name>
+    <servlet-class>com.exercise.book.DeleteBookServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>DeleteBookServlet</servlet-name>
+    <url-pattern>/deleteBook</url-pattern>
+</servlet-mapping>
+<servlet>
+    <servlet-name>DisplayBooksServlet</servlet-name>
+    <servlet-class>com.exercise.book.DisplayBooksServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>DisplayBooksServlet</servlet-name>
+    <url-pattern>/displayBooks</url-pattern>
+</servlet-mapping>
+
+    <servlet>
+    <servlet-name>SearchBooksServlet</servlet-name>
+    <servlet-class>com.exercise.book.SearchBooksServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>SearchBooksServlet</servlet-name>
+    <url-pattern>/SearchBooks</url-pattern>
+</servlet-mapping>
+</web-app> 
