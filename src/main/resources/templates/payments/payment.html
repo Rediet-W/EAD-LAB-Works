@@ -27,7 +27,6 @@
       </a>
     </div>
 
-    <!-- ✅ Show Payment Form Only If Not Paid -->
     <div th:if="${booking.paymentStatus == 'Pending'}">
       <h3>Select Payment Method</h3>
       <form th:action="@{/payments/pay}" method="post">
@@ -48,7 +47,6 @@
       </form>
     </div>
 
-    <!-- ✅ After Payment, Show Button to Go to Bookings -->
     <div th:if="${booking.paymentStatus == 'Paid'}">
       <p style="color: green">✅ Payment Completed.</p>
       <a th:href="@{/bookings/user(userId=${booking.user.id})}">

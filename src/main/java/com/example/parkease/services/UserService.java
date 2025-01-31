@@ -26,10 +26,10 @@ public class UserService implements UserDetailsService {
 
     public boolean registerUser(String email, String password, String role) {
         if (userRepository.findByEmail(email).isPresent()) {
-            return false; // User already exists
+            return false; 
         }
         
-        User user = new User(); // Use the no-argument constructor
+        User user = new User(); 
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password)); // Encrypt password
         user.setRole(role);

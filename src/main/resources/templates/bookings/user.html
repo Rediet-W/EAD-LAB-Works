@@ -32,7 +32,6 @@
       <tbody>
         <tr th:each="booking : ${bookings}">
           <td th:text="${booking.parkingSpot.location}"></td>
-          <!-- Extract Date from startTime -->
           <td
             th:text="${#strings.substringBefore(booking.startTime, 'T')}"
           ></td>

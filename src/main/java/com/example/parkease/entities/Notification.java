@@ -20,7 +20,7 @@ public class Notification {
     private String message;
 
     @Column(nullable = false)
-    private boolean isRead = false; // Default is unread
+    private boolean isRead = false; 
 
     @Column(nullable = false)
     private LocalDateTime timestamp = LocalDateTime.now();

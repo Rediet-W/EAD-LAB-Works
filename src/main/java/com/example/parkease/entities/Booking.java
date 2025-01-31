@@ -33,7 +33,7 @@ public class Booking {
     @Column(nullable = false)
     private String status; // Active, Completed, Cancelled
 
-    @Column(nullable = false)  // 🔴 Fix: Add vehicle number as required field
+    @Column(nullable = false) 
     private String vehicleNumber;
 
     @Column(nullable = false)

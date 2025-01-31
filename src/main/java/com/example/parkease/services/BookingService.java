@@ -12,11 +12,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.time.LocalDate;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -31,21 +28,42 @@ public class BookingService {
         this.parkingSpotRepository = parkingSpotRepository;
         this.userRepository = userRepository;
     }
+    public double calculateRoundedHours(LocalDateTime startTime, LocalDateTime endTime) {
+        double minutes = Duration.between(startTime, endTime).toMinutes();
+    
+        if (minutes <= 30) {
+            return 0.5;
+        } else if (minutes <= 60) {
+            return 1.0;
+        } else if (minutes <= 90) {
+            return 1.5;
+        } else if (minutes <= 120) {
+            return 2.0;
+        } else {
+            return Math.ceil(minutes / 30.0) / 2.0;
+        }
+    }
+    
 
-    public Booking createBooking(Long userId, Long parkingSpotId, LocalDateTime startTime, LocalDateTime endTime,  String vehicleNumber) {
+    public Booking createBooking(Long userId, Long parkingSpotId, LocalDateTime startTime, LocalDateTime endTime, String vehicleNumber) {
         ParkingSpot parkingSpot = parkingSpotRepository.findById(parkingSpotId)
                 .orElseThrow(() -> new RuntimeException("Parking spot not found"));
-
+    
+        if (parkingSpot.getAvailableSpots() <= 0) {
+            throw new RuntimeException("No available spots for this location.");
+        }
+    
         if (!parkingSpot.isAvailableForBooking(startTime, endTime)) {
             throw new RuntimeException("Parking spot is already booked for the selected time slot");
         }
-
+    
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    
+        double hours = calculateRoundedHours(startTime, endTime);
+        double totalPrice = hours * parkingSpot.getPricePerHour(); 
 
-        double hours = Duration.between(startTime, endTime).toHours();
-        double totalPrice = hours * parkingSpot.getPricePerHour();
-
+    
         Booking booking = new Booking();
         booking.setParkingSpot(parkingSpot);
         booking.setUser(user);
@@ -53,10 +71,14 @@ public class BookingService {
         booking.setEndTime(endTime);
         booking.setTotalPrice(totalPrice);
         booking.setStatus("Active");
-        booking.setVehicleNumber(vehicleNumber); 
-
+        booking.setVehicleNumber(vehicleNumber);
+    
+        parkingSpot.decrementAvailableSpots();
+        parkingSpotRepository.save(parkingSpot); 
+    
         return bookingRepository.save(booking);
     }
+    
 
     public void cancelBooking(Long bookingId, Long userId, boolean isAdmin) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -70,15 +92,16 @@ public class BookingService {
             throw new RuntimeException("Booking has already started, cancellation not allowed!");
         }
     
-        // ✅ Refund Simulation
-        if ("Completed".equals(booking.getStatus())) {
-            booking.setStatus("Refunded"); // Simulate refund
-        } else {
-            booking.setStatus("Cancelled");
-        }
+        booking.setStatus("Cancelled");
+    
+        // Increment available spots when canceling
+        ParkingSpot parkingSpot = booking.getParkingSpot();
+        parkingSpot.incrementAvailableSpots();
+        parkingSpotRepository.save(parkingSpot); 
     
         bookingRepository.save(booking);
     }
+    
     
 
     public List<Booking> getBookingsByUser(Long userId) {
@@ -95,6 +118,9 @@ public class BookingService {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
     }
+
+    @Autowired
+    private NotificationService notificationService;
     public void processPayment(Long bookingId, String paymentMethod) {
         Booking booking = getBookingById(bookingId);
 
@@ -105,6 +131,7 @@ public class BookingService {
         booking.setPaymentStatus("Paid");
         booking.setPaymentMethod(paymentMethod);
         bookingRepository.save(booking);
+        notificationService.notifyPaymentSuccess(booking.getUser().getId());
     }
 
     public void markPaymentAsPaid(Long bookingId) {
@@ -122,7 +149,7 @@ public class BookingService {
     List<Booking> allBookings = bookingRepository.findAll();
 
     double totalRevenue = allBookings.stream()
-            .filter(booking -> "Completed".equals(booking.getStatus()))
+            .filter(booking -> "completed".equals(booking.getStatus()))
             .mapToDouble(Booking::getTotalPrice)
             .sum();
 
@@ -141,4 +168,22 @@ public class BookingService {
                     .collect(Collectors.toList())
     );
 }
+public void completeBooking(Long bookingId) {
+    Booking booking = bookingRepository.findById(bookingId)
+            .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+    if (!booking.getStatus().equals("Active")) {
+        throw new RuntimeException("Only active bookings can be completed.");
+    }
+
+    booking.setStatus("Completed");
+
+   
+    ParkingSpot parkingSpot = booking.getParkingSpot();
+    parkingSpot.incrementAvailableSpots();
+    parkingSpotRepository.save(parkingSpot);
+
+    bookingRepository.save(booking);
+}
+
 }

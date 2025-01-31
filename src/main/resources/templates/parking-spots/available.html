@@ -44,6 +44,7 @@
           <th>Location</th>
           <th>Type</th>
           <th>Price Per Hour</th>
+          <th>Available Spots</th>
           <th>Book</th>
         </tr>
       </thead>
@@ -52,12 +53,19 @@
           <td th:text="${spot.location}"></td>
           <td th:text="${spot.type}"></td>
           <td th:text="${spot.pricePerHour}"></td>
+          <td th:text="${spot.availableSpots}"></td>
+          <!-- 🟢 Display available spots -->
           <td>
             <a
+              th:if="${spot.availableSpots > 0}"
               th:href="@{/bookings/create(spotId=${spot.id}, startTime=${startTime}, endTime=${endTime})}"
+              class="btn-book"
             >
-              Book
+              Book Now
             </a>
+            <span th:if="${spot.availableSpots == 0}" class="unavailable"
+              >No Spots Available</span
+            >
           </td>
         </tr>
       </tbody>

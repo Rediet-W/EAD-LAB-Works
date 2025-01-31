@@ -18,7 +18,7 @@ public class PaymentController {
         this.bookingService = bookingService;
     }
 
-    // ✅ Show Payment Page
+    // Show Payment Page
     @GetMapping("/{bookingId}")
     public String showPaymentPage(@PathVariable Long bookingId, Model model) {
         Booking booking = bookingService.getBookingById(bookingId);
@@ -26,7 +26,7 @@ public class PaymentController {
         return "payments/payment";
     }
 
-    // ✅ Simulate Payment (Changes Status)
+    // Simulate Payment (Changes Status)
     @PostMapping("/pay")
     public String processPayment(
             @RequestParam Long bookingId,

@@ -20,26 +20,26 @@ public class AdminPaymentController {
         this.bookingService = bookingService;
     }
 
-    // ✅ View All Payments (Admin)
+    // View All Payments (Admin)
     @GetMapping
     public String viewAllPayments(Model model) {
-        List<Booking> bookings = bookingService.getAllBookings(); // Fetch all bookings (paid & unpaid)
+        List<Booking> bookings = bookingService.getAllBookings();
         model.addAttribute("bookings", bookings);
-        return "admin/payments"; // Renders admin payments page
+        return "admin/payments"; 
     }
 
-    // ✅ View Single Payment Details
+    // View Single Payment Details
     @GetMapping("/{bookingId}")
     public String viewPaymentDetails(@PathVariable Long bookingId, Model model) {
         Booking booking = bookingService.getBookingById(bookingId);
         model.addAttribute("booking", booking);
-        return "admin/payment-details"; // Show payment details
+        return "admin/payment-details"; 
     }
 
-    // ✅ Mark Payment as Completed
+    //  Mark Payment as Completed
     @PostMapping("/mark-paid/{bookingId}")
     public String markPaymentAsPaid(@PathVariable Long bookingId) {
         bookingService.markPaymentAsPaid(bookingId);
-        return "redirect:/admin/payments"; // Redirect back to payments list
+        return "redirect:/admin/payments"; 
     }
 }

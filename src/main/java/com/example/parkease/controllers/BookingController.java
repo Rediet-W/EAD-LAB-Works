@@ -38,21 +38,20 @@ public String showBookingForm(
     Model model, 
     Principal principal
 ) {
-    // Get the logged-in user
     User user = userService.getUserByEmail(principal.getName())
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-    // Get parking spot by ID
+ 
     ParkingSpot parkingSpot = parkingSpotService.getParkingSpotById(spotId);
 
-    // ✅ Explicitly set `parkingSpotId`
+    
     model.addAttribute("userId", user.getId());
-    model.addAttribute("parkingSpotId", spotId); // 🔴 FIXED
+    model.addAttribute("parkingSpotId", spotId); 
     model.addAttribute("parkingSpot", parkingSpot); 
     model.addAttribute("startTime", startTime);
     model.addAttribute("endTime", endTime);
 
-    return "bookings/create"; // Show the booking form
+    return "bookings/create"; 
 }
 
     
@@ -88,16 +87,16 @@ public String showBookingForm(
                     LocalDateTime.parse(endTime),
                     vehicleNumber
             );
-           return "redirect:/payments/" + booking.getId(); // ✅ Redirect if successful
+           return "redirect:/payments/" + booking.getId(); 
     
         } catch (RuntimeException e) {
-            model.addAttribute("errorMessage", e.getMessage()); // ✅ Pass error to the form
+            model.addAttribute("errorMessage", e.getMessage()); 
             model.addAttribute("userId", userId);
             model.addAttribute("parkingSpotId", parkingSpotId);
             model.addAttribute("startTime", startTime);
             model.addAttribute("endTime", endTime);
             model.addAttribute("vehicleNumber", vehicleNumber);
-            return "bookings/create"; // ✅ Stay on form and show error
+            return "bookings/create"; 
         }
     }
     
@@ -112,7 +111,7 @@ public String viewUserBookings(@RequestParam Long userId, Model model) {
 public String viewAllBookings(Model model) {
     List<Booking> bookings = bookingService.getAllBookings();
     model.addAttribute("bookings", bookings);
-    return "bookings/admin"; // ✅ This should match the correct Thymeleaf template
+    return "bookings/admin";
 }
 
 @GetMapping("/cancel/{id}")
@@ -125,11 +124,10 @@ public String cancelBooking(@PathVariable Long id, Principal principal, Model mo
         return "redirect:/bookings/user?userId=" + user.getId();
     } catch (RuntimeException e) {
         model.addAttribute("errorMessage", e.getMessage());
-        return "bookings/user"; // Stay on the same page with error
+        return "bookings/user"; 
     }
 }
 
-// 🔵 Admin Cancel Any Booking
 @GetMapping("/admin/cancel/{id}")
 public String adminCancelBooking(@PathVariable Long id) {
     bookingService.cancelBooking(id, null, true);

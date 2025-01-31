@@ -21,6 +21,7 @@
           <th>Location</th>
           <th>Type</th>
           <th>Price Per Hour</th>
+          <th>Available Spots</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -30,6 +31,7 @@
           <td th:text="${spot.location}"></td>
           <td th:text="${spot.type}"></td>
           <td th:text="${spot.pricePerHour}"></td>
+          <td th:text="${spot.availableSpots}"></td>
           <td>
             <a
               th:href="@{/parking-spots/admin/edit/{id}(id=${spot.id})}"

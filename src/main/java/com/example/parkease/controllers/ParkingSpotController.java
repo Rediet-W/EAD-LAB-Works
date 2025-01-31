@@ -44,43 +44,28 @@ public class ParkingSpotController {
         return "parking-spots/available"; // Shows available.html
     }
 
-    // 🔵 **Admin: View All Parking Spots**
+    // Admin: View All Parking Spots**
     @GetMapping("/admin")
     public String viewAllParkingSpots(Model model) {
         model.addAttribute("parkingSpots", parkingSpotService.getAllParkingSpots());
         return "parking-spots/list";
     }
 
-    // // 🟢 **Users: View Available Spots for Specific Time**
-    // @GetMapping("/available")
-    // public String viewAvailableSpots(
-    //         @RequestParam String startTime, 
-    //         @RequestParam String endTime, 
-    //         Model model) {
-        
-    //     LocalDateTime start = LocalDateTime.parse(startTime);
-    //     LocalDateTime end = LocalDateTime.parse(endTime);
-
-    //     List<ParkingSpot> availableSpots = parkingSpotService.findAvailableSpots(start, end);
-    //     model.addAttribute("parkingSpots", availableSpots);
-    //     return "parking-spots/available";
-    // }
-
-    // 🟠 **Admin: Show Add Parking Spot Form**
+    // Admin: Show Add Parking Spot Form**
     @GetMapping("/admin/add")
     public String showAddParkingSpotForm(Model model) {
         model.addAttribute("parkingSpot", new ParkingSpot());
         return "parking-spots/add";
     }
 
-    // 🟠 **Admin: Add a New Parking Spot**
+    // Admin: Add a New Parking Spot**
     @PostMapping("/admin")
     public String addParkingSpot(@ModelAttribute ParkingSpot parkingSpot) {
         parkingSpotService.addParkingSpot(parkingSpot);
         return "redirect:/parking-spots/admin";
     }
 
-    // 🔵 **Admin: Show Edit Parking Spot Form**
+    // Admin: Show Edit Parking Spot Form**
     @GetMapping("/admin/edit/{id}")
     public String showEditParkingSpotForm(@PathVariable Long id, Model model) {
         ParkingSpot parkingSpot = parkingSpotService.getParkingSpotById(id);

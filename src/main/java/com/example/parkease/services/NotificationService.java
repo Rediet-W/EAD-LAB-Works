@@ -9,13 +9,11 @@ import com.example.parkease.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class NotificationService {
@@ -43,7 +41,8 @@ public class NotificationService {
 
         notificationRepository.save(notification);
     }
-
+@GetMapping
+@ResponseBody
     public List<Notification> getUserNotifications(Long userId) {
         return notificationRepository.findByUserIdOrderByTimestampDesc(userId);
     }
@@ -56,9 +55,10 @@ public class NotificationService {
         notificationRepository.saveAll(unreadNotifications);
     }
 
-    // 🔔 **Send a reminder 30 minutes before booking starts**
+    // Send a reminder 30 minutes before booking starts**
     @Scheduled(fixedRate = 60000) // Every 60 seconds
     public void sendUpcomingBookingReminders() {
+        System.out.println("🔔 Checking upcoming bookings...");
         LocalDateTime reminderTime = LocalDateTime.now().plusMinutes(30);
         List<Booking> upcomingBookings = bookingRepository.findBookingsStartingAt(reminderTime);
 
@@ -67,7 +67,7 @@ public class NotificationService {
         }
     }
 
-    // 🔔 **Send a reminder 15 minutes before booking ends**
+    //  Send a reminder 15 minutes before booking ends**
     @Scheduled(fixedRate = 60000) // Every 60 seconds
     public void sendEndBookingReminders() {
         LocalDateTime reminderTime = LocalDateTime.now().plusMinutes(15);
@@ -78,7 +78,7 @@ public class NotificationService {
         }
     }
 
-    // 🔔 **Send a notification when a payment is made**
+    // send a notification when a payment is made**
     public void notifyPaymentSuccess(Long userId) {
         sendNotification(userId, "Your payment was successful!");
     }

@@ -17,6 +17,7 @@
         <tr>
           <th>User</th>
           <th>Spot</th>
+          <th>Available Spots</th>
           <th>Date</th>
           <th>Start Time</th>
           <th>End Time</th>
@@ -29,6 +30,7 @@
         <tr th:each="booking : ${bookings}">
           <td th:text="${booking.user.email}"></td>
           <td th:text="${booking.parkingSpot.location}"></td>
+          <td th:text="${booking.parkingSpot.availableSpots}"></td>
           <!-- Extract Date from Start Time -->
           <td
             th:text="${#strings.substringBefore(booking.startTime, 'T')}"

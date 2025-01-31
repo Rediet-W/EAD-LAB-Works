@@ -31,7 +31,6 @@ public class ParkingSpotService {
                 .orElseThrow(() -> new RuntimeException("Parking Spot not found"));
     }
     
-// 🟢 **Users: Returns `ParkingSpot` safely for bookings**
 public ParkingSpot getParkingSpotByIdOrThrow(Long id) {
     return parkingSpotRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Parking spot not found"));
@@ -46,9 +45,15 @@ public ParkingSpot getParkingSpotByIdOrThrow(Long id) {
             spot.setLocation(updatedSpot.getLocation());
             spot.setType(updatedSpot.getType());
             spot.setPricePerHour(updatedSpot.getPricePerHour());
+    
+            if (updatedSpot.getAvailableSpots() >= 0) {
+                spot.setAvailableSpots(updatedSpot.getAvailableSpots());
+            }
+    
             return parkingSpotRepository.save(spot);
         }).orElseThrow(() -> new RuntimeException("Parking Spot not found"));
     }
+    
 
     public void deleteParkingSpot(Long id) {
         parkingSpotRepository.deleteById(id);
