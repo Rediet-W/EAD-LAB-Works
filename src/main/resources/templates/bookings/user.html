@@ -10,6 +10,12 @@
   <body>
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
+    <!-- Error Message Container -->
+    <div
+      id="error-message"
+      style="display: none; color: red; text-align: center; margin: 20px auto"
+    ></div>
+
     <div class="flex flex-row">
       <h2>Your Bookings</h2>
       <a th:href="@{/parking-spots/select-time}" class="another"
@@ -30,20 +36,21 @@
         </tr>
       </thead>
       <tbody>
-        <tr th:each="booking : ${bookings}">
+        <tr th:each="booking : ${bookings}" id="booking-row-[[${booking.id}]]">
           <td th:text="${booking.parkingSpot.location}"></td>
           <td
             th:text="${#strings.substringBefore(booking.startTime, 'T')}"
           ></td>
-          <!-- Extract only Time (HH:mm) -->
           <td th:text="${#strings.substringAfter(booking.startTime, 'T')}"></td>
           <td th:text="${#strings.substringAfter(booking.endTime, 'T')}"></td>
           <td th:text="${booking.totalPrice}"></td>
           <td th:text="${booking.status}"></td>
           <td>
+            <!-- Instead of a direct link, call a JavaScript function -->
             <a
               th:if="${booking.status == 'Active'}"
-              th:href="@{/bookings/cancel/{id}(id=${booking.id})}"
+              href="#"
+              th:onclick="|cancelBooking(${booking.id})|"
             >
               Cancel
             </a>
@@ -51,5 +58,56 @@
         </tr>
       </tbody>
     </table>
+
+    <script>
+      function cancelBooking(bookingId) {
+        // Clear any previous error message
+        const errorMessage = document.getElementById("error-message");
+        errorMessage.style.display = "none";
+        errorMessage.textContent = "";
+
+        // Confirm cancellation with the user
+        if (!confirm("Are you sure you want to cancel this booking?")) {
+          return;
+        }
+
+        fetch(`/bookings/admin/cancel/${bookingId}`)
+          .then((response) => {
+            if (!response.ok) {
+              // Try to parse JSON error response
+              const contentType = response.headers.get("content-type");
+              if (
+                contentType &&
+                contentType.indexOf("application/json") !== -1
+              ) {
+                return response.json().then((json) => {
+                  // Try to extract the error message; adjust property names as needed.
+                  let errMsg =
+                    json.message || json.error || "An error occurred";
+                  throw new Error(errMsg);
+                });
+              } else {
+                // Fallback to text if response is not JSON
+                return response.text().then((text) => {
+                  throw new Error(text);
+                });
+              }
+            }
+            return response.text();
+          })
+          .then((data) => {
+            const row = document.getElementById(`booking-row-${bookingId}`);
+            if (row) {
+              row.remove();
+            }
+          })
+          .catch((error) => {
+            errorMessage.style.display = "block";
+            errorMessage.textContent =
+              error.message ||
+              "An error occurred while cancelling the booking.";
+          });
+      }
+    </script>
   </body>
 </html>

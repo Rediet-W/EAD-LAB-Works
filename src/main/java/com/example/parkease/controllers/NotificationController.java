@@ -4,52 +4,45 @@ import com.example.parkease.entities.Notification;
 import com.example.parkease.entities.User;
 import com.example.parkease.repositories.UserRepository;
 import com.example.parkease.services.NotificationService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 
-@Controller
-@RequestMapping("/notifications")
+@RestController
+@RequestMapping("/api/notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;
     private final UserRepository userRepository;
 
     @Autowired
-    public NotificationController(NotificationService notificationService,  UserRepository userRepository) {
+    public NotificationController(NotificationService notificationService, UserRepository userRepository) {
         this.notificationService = notificationService;
         this.userRepository = userRepository;
     }
 
-   
-    @GetMapping
-public String getUserNotifications(Principal principal, Model model) {
-    String email = principal.getName();
-    User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+    // JSON endpoint for fetching notifications for the logged-in user
+    @GetMapping("/list")
+    public List<Notification> getUserNotifications(Principal principal, HttpSession session) {
+        String email = principal.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found for email: " + email));
+        // Optionally store userId in session if needed
+        if (session.getAttribute("userId") == null) {
+            session.setAttribute("userId", user.getId());
+        }
+        return notificationService.getUserNotifications(user.getId());
+    }
 
-    List<Notification> notifications = notificationService.getUserNotifications(user.getId());
-
-    System.out.println("Fetched Notifications: " + notifications); // Debugging
-
-    model.addAttribute("notifications", notifications);
-    return "notifications"; 
-}
-
-
+    // You can also expose an endpoint to mark notifications as read if needed.
     @PostMapping("/mark-read")
-@ResponseBody
-public void markNotificationsAsRead(Principal principal) {
-    String email = principal.getName(); // Get email
-    User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-    notificationService.markNotificationsAsRead(user.getId());
+    public void markNotificationsAsRead(Principal principal) {
+        String email = principal.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found for email: " + email));
+        notificationService.markNotificationsAsRead(user.getId());
+    }
 }
-
-}
-

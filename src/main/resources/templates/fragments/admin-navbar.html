@@ -20,29 +20,9 @@
         <!-- Right Side: Links -->
         <div class="nav-right">
           <a href="/admin/dashboard">Dashboard</a>
+          <a href="/bookings/admin">Bookings</a>
           <a href="/admin/payments">Payments</a>
           <a href="/parking-spots/admin">Parking Spots</a>
-
-          <!-- 🔔 Notification Bell -->
-          <div class="notification-container">
-            <span
-              id="notification-bell"
-              class="bell"
-              onclick="toggleNotifications()"
-            >
-              🔔
-              <span
-                id="notification-count"
-                class="notification-badge"
-                th:if="${unreadCount > 0}"
-                th:text="${unreadCount}"
-              >
-              </span>
-            </span>
-            <div id="notification-dropdown" class="notification-dropdown">
-              <p>No new notifications</p>
-            </div>
-          </div>
 
           <!-- Logout Button -->
           <a href="#" onclick="toggleLogoutOverlay()">Logout</a>

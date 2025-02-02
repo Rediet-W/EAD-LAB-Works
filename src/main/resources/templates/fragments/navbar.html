@@ -6,7 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}" />
   </head>
   <body th:fragment="navbar">
-    <div >
+    <div>
       <nav>
         <!-- Left Side: Logo -->
         <div class="nav-left">
@@ -16,22 +16,42 @@
         <!-- Right Side: Links -->
         <div class="nav-right">
           <a href="/dashboard">Home</a>
-          <a href="/bookings/user?userId=1">My Bookings</a>
-        
-<div class="notification-container">
-  <span id="notification-bell" class="bell" onclick="toggleNotifications()">
-    🔔
-    <span id="notification-count" class="notification-badge" style="display:none;">
-    </span>
-  </span>
-  <div id="notification-dropdown" class="notification-dropdown">
-    <ul id="notification-list"></ul> <!-- 🔵 Notifications will be inserted here -->
-  </div>
-</div>
-         
+          <a th:href="@{/bookings/user(userId=${userId})}">My Bookings</a>
+
+          <div class="notification-container" style="position: relative">
+            <span
+              id="notificationBell"
+              class="bell"
+              onclick="toggleNotificationsDropdown()"
+            >
+              🔔
+              <span
+                id="notificationCount"
+                class="notification-badge"
+                style="display: none"
+              ></span>
+            </span>
+            <div
+              id="notificationsDropdown"
+              class="notification-dropdown"
+              style="
+                display: none;
+                position: absolute;
+                right: 0;
+                background-color: white;
+                border: 1px solid #ccc;
+                width: 300px;
+                max-height: 400px;
+                overflow-y: auto;
+              "
+            >
+              <ul id="notificationsList"></ul>
+              <!-- 🔵 Notifications will be inserted here -->
+            </div>
+          </div>
 
           <!-- Logout Button -->
-          <a href="#" onclick="toggleLogoutOverlay()">Logout</a> </div>
+          <a href="#" onclick="toggleLogoutOverlay()">Logout</a>
         </div>
       </nav>
 
@@ -47,7 +67,6 @@
         </div>
       </div>
 
-      
       <form
         id="logout-form"
         th:action="@{/logout}"
@@ -58,50 +77,83 @@
       </form>
 
       <script>
-        function toggleNotifications() {
-          let dropdown = document.getElementById("notification-dropdown");
-          dropdown.classList.toggle("show");
-          console.log("Toggled notifications dropdown");
-          fetch("/notifications") 
-            .then((response) => response.json())
-            .then((data) => {
-              let notificationList =
-                document.getElementById("notification-list");
-              notificationList.innerHTML = ""; 
-
-              if (data.length === 0) {
-                notificationList.innerHTML = "<li>No new notifications</li>";
-              } else {
-                data.forEach((notification) => {
-                  let li = document.createElement("li");
-                  li.textContent = notification.message;
-                  notificationList.appendChild(li);
-                });
-
-                document.getElementById("notification-count").style.display =
-                  "none";
-              }
-            });
-
-          fetch("/notifications/mark-read", { method: "POST" });
+        // Toggle the notifications dropdown
+        function toggleNotificationsDropdown() {
+          const dropdown = document.getElementById("notificationsDropdown");
+          if (
+            dropdown.style.display === "none" ||
+            dropdown.style.display === ""
+          ) {
+            fetchNotifications();
+            dropdown.style.display = "block";
+          } else {
+            dropdown.style.display = "none";
+          }
         }
 
-        function fetchUnreadCount() {
-          fetch("/notifications")
-            .then((response) => response.json())
-            .then((data) => {
-              let unreadCount = data.length;
-              let countElem = document.getElementById("notification-count");
-              if (unreadCount > 0) {
-                countElem.textContent = unreadCount;
-                countElem.style.display = "inline-block";
-              } else {
-                countElem.style.display = "none";
+        // Fetch notifications from the backend API
+        function fetchNotifications() {
+          fetch("/api/notifications/list")
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(
+                  "Network response was not ok " + response.statusText
+                );
               }
+              return response.json();
+            })
+            .then((data) => {
+              displayNotifications(data);
+            })
+            .catch((error) => {
+              console.error("Error fetching notifications:", error);
             });
         }
 
-        window.onload = fetchUnreadCount;
+        // Display notifications in the dropdown and update the badge
+        function displayNotifications(notifications) {
+          const notificationsList =
+            document.getElementById("notificationsList");
+          notificationsList.innerHTML = ""; // Clear existing notifications
+
+          if (notifications.length === 0) {
+            notificationsList.innerHTML =
+              "<li style='padding: 10px;'>No new notifications.</li>";
+          } else {
+            notifications.forEach((notification) => {
+              const li = document.createElement("li");
+              li.style.padding = "10px";
+              li.style.borderBottom = "1px solid #ddd";
+              li.innerHTML = `<strong>${
+                notification.message
+              }</strong><br><small>${new Date(
+                notification.timestamp
+              ).toLocaleString()}</small>`;
+              notificationsList.appendChild(li);
+            });
+          }
+
+          // Update the notification count badge
+          const notificationCount =
+            document.getElementById("notificationCount");
+          notificationCount.textContent = notifications.length;
+          if (notifications.length > 0) {
+            notificationCount.style.display = "inline-block";
+          } else {
+            notificationCount.style.display = "none";
+          }
+        }
+
+        // Optionally, hide the dropdown when clicking outside
+        window.onclick = function (event) {
+          if (
+            !event.target.matches("#notificationBell") &&
+            !event.target.closest("#notificationsDropdown")
+          ) {
+            document.getElementById("notificationsDropdown").style.display =
+              "none";
+          }
+        };
 
         function toggleLogoutOverlay() {
           document

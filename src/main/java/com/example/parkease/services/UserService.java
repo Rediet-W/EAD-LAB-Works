@@ -23,6 +23,13 @@ public class UserService implements UserDetailsService {
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+    public Long getUserIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+                             .map(User::getId) // Assuming getId() returns a Long
+                             .orElse(null);
+    }
+    
+    
 
     public boolean registerUser(String email, String password, String role) {
         if (userRepository.findByEmail(email).isPresent()) {
@@ -50,4 +57,5 @@ public class UserService implements UserDetailsService {
             .roles(user.getRole())
             .build();
     }
+   
 }

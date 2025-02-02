@@ -7,6 +7,7 @@ import com.example.parkease.repositories.BookingRepository;
 import com.example.parkease.repositories.ParkingSpotRepository;
 import com.example.parkease.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -46,6 +47,15 @@ public class BookingService {
     
 
     public Booking createBooking(Long userId, Long parkingSpotId, LocalDateTime startTime, LocalDateTime endTime, String vehicleNumber) {
+        LocalDateTime now = LocalDateTime.now();
+        // Check that start time is not in the past
+        if (startTime.isBefore(now)) {
+            throw new RuntimeException("Booking start time cannot be in the past");
+        }
+        // Check that the booking is not for a previous day
+        if (startTime.toLocalDate().isBefore(now.toLocalDate())) {
+            throw new RuntimeException("Cannot book for a previous day");
+        }
         ParkingSpot parkingSpot = parkingSpotRepository.findById(parkingSpotId)
                 .orElseThrow(() -> new RuntimeException("Parking spot not found"));
     
@@ -119,6 +129,14 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
     }
 
+
+    public List<Booking> findPaymentsByPlate(String plate) {
+        if (plate != null && !plate.trim().isEmpty()) {
+            return bookingRepository.findByVehicleNumberContainingIgnoreCase(plate);
+        } else {
+            return bookingRepository.findAll();
+        }
+    }
     @Autowired
     private NotificationService notificationService;
     public void processPayment(Long bookingId, String paymentMethod) {
@@ -185,5 +203,18 @@ public void completeBooking(Long bookingId) {
 
     bookingRepository.save(booking);
 }
+
+@Scheduled(fixedDelay = 60000)  // Runs every 60 seconds
+    public void updateCompletedBookings() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> endedBookings = bookingRepository.findActiveBookingsEndedBefore(now);
+        if (!endedBookings.isEmpty()) {
+            for (Booking booking : endedBookings) {
+                booking.setStatus("completed");
+                bookingRepository.save(booking);
+                // Optionally, log the update or perform other actions (e.g., send a notification)
+            }
+        }
+    }
 
 }

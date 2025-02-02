@@ -37,7 +37,7 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>User</th>
+            <th>Plate Number</th>
             <th>Parking Spot</th>
             <th>Date</th>
             <th>Start Time</th>
@@ -48,7 +48,7 @@
         <tbody>
           <tr th:each="booking : ${bookings}">
             <td th:text="${booking.id}"></td>
-            <td th:text="${booking.user.email}"></td>
+            <td th:text="${booking.vehicleNumber}"></td>
             <td th:text="${booking.parkingSpot.location}"></td>
             <td
               th:text="${#strings.substringBefore(booking.startTime, 'T')}"

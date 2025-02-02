@@ -37,15 +37,16 @@
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
-  background: #f8f9fa;
+  background: #a3b18a;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
 }
 
 .stats-container h3 {
-  color: #2c3e50;
+  color: #036408;
   font-size: 1.5rem;
+  padding-left: 2;
 }
 
 /* Bookings Table */
@@ -66,7 +67,7 @@
 }
 
 .bookings-table th {
-  background-color: #2c3e50;
+  background-color: #588157;
   color: white;
 }
 

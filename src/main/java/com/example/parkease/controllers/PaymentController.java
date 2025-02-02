@@ -35,5 +35,7 @@ public class PaymentController {
         bookingService.processPayment(bookingId, paymentMethod);
         return "redirect:/bookings/user?userId=" + bookingService.getBookingById(bookingId).getUser().getId();
     }
+
+    
     
 }

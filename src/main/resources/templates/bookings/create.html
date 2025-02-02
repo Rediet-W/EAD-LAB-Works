@@ -11,9 +11,12 @@
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <h2>Book a Parking Spot</h2>
-
+    <div th:if="${errorMessage}" class="error-message">
+      <p th:text="${errorMessage}"></p>
+    </div>
     <form th:action="@{/bookings/confirm}" method="post">
       <!-- Hidden Inputs to Submit Unchanged Values -->
+
       <input type="hidden" name="userId" th:value="${userId}" />
       <input type="hidden" name="parkingSpotId" th:value="${parkingSpotId}" />
       <input type="hidden" name="startTime" th:value="${startTime}" />

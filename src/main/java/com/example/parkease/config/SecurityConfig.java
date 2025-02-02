@@ -14,6 +14,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+import com.example.parkease.services.UserService;
+
 import java.io.IOException;
 
 @Configuration
@@ -21,10 +24,14 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final UserService userService;  // Add this field
 
-    public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(UserDetailsService userDetailsService, 
+                          PasswordEncoder passwordEncoder,
+                          UserService userService) {  // Inject UserService via constructor
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
     }
 
     @Bean
@@ -58,17 +65,20 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return new AuthenticationSuccessHandler() {
             @Override
-            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                // Check user roles and redirect accordingly
-                System.out.println("User authenticated: " + authentication.getName());
-            System.out.println("Roles: " + authentication.getAuthorities());
+            public void onAuthenticationSuccess(HttpServletRequest request,
+                                                HttpServletResponse response,
+                                                Authentication authentication) throws IOException, ServletException {
+                String email = authentication.getName();
+                Long userId = userService.getUserIdByEmail(email); // Now userService is properly injected!
+                request.getSession().setAttribute("userId", userId);
+
                 for (GrantedAuthority authority : authentication.getAuthorities()) {
                     if (authority.getAuthority().equals("ROLE_admin")) {
                         response.sendRedirect("/admin/dashboard");
                         return;
                     }
                 }
-                response.sendRedirect("/dashboard"); // Default for non-admin users
+                response.sendRedirect("/dashboard");
             }
         };
     }

@@ -39,7 +39,6 @@ Many existing parking areas lack real-time tracking and reservation systems, for
 
 - **Manage Parking Slots** – Add, update, and remove parking spaces.
 - **View User Bookings** – Monitor and manage user reservations.
-- **Send Notifications** – Alert users about slot availability.
 
 ---
 

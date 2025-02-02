@@ -16,7 +16,7 @@
       id="booking-form"
       th:action="@{/parking-spots/available}"
       method="get"
-      onsubmit="prepareDateTime()"
+      onsubmit="return prepareDateTime()"
     >
       <!-- Date Selection -->
       <label for="bookingDate">Booking Date:</label>
@@ -38,6 +38,12 @@
     </form>
 
     <script>
+      // Set the minimum selectable date to today
+      window.addEventListener("load", function () {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("bookingDate").setAttribute("min", today);
+      });
+
       function prepareDateTime() {
         let date = document.getElementById("bookingDate").value;
         let startTime = document.getElementById("startTime").value;
@@ -48,7 +54,15 @@
           return false;
         }
 
-        // Combine date and time into datetime-local format
+        // Check that the selected date is not in the past
+        const today = new Date().setHours(0, 0, 0, 0);
+        const selectedDate = new Date(date).setHours(0, 0, 0, 0);
+        if (selectedDate < today) {
+          alert("Booking date cannot be in the past.");
+          return false;
+        }
+
+        // Combine date and time into a datetime string
         let formattedStartTime = `${date}T${startTime}`;
         let formattedEndTime = `${date}T${endTime}`;
 

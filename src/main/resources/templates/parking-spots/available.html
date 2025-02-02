@@ -12,7 +12,6 @@
 
     <h2>Available Parking Spots</h2>
 
-    <!-- Extract Date from the String (Splitting at 'T') -->
     <p>
       Date:
       <span
@@ -21,7 +20,6 @@
       ></span>
     </p>
 
-    <!-- Extract Start Time (HH:mm format) -->
     <p>
       Start Time:
       <span
@@ -30,7 +28,6 @@
       ></span>
     </p>
 
-    <!-- Extract End Time (HH:mm format) -->
     <p>
       End Time:
       <span
@@ -54,7 +51,7 @@
           <td th:text="${spot.type}"></td>
           <td th:text="${spot.pricePerHour}"></td>
           <td th:text="${spot.availableSpots}"></td>
-          <!-- 🟢 Display available spots -->
+
           <td>
             <a
               th:if="${spot.availableSpots > 0}"

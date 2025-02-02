@@ -41,8 +41,7 @@ public class NotificationService {
 
         notificationRepository.save(notification);
     }
-@GetMapping
-@ResponseBody
+
     public List<Notification> getUserNotifications(Long userId) {
         return notificationRepository.findByUserIdOrderByTimestampDesc(userId);
     }
@@ -55,28 +54,33 @@ public class NotificationService {
         notificationRepository.saveAll(unreadNotifications);
     }
 
-    // Send a reminder 30 minutes before booking starts**
+    // Send a reminder 30 minutes before booking starts
     @Scheduled(fixedRate = 60000) // Every 60 seconds
     public void sendUpcomingBookingReminders() {
         System.out.println("🔔 Checking upcoming bookings...");
-        LocalDateTime reminderTime = LocalDateTime.now().plusMinutes(30);
-        List<Booking> upcomingBookings = bookingRepository.findBookingsStartingAt(reminderTime);
+        // Define a 1-minute window
+        LocalDateTime reminderStart = LocalDateTime.now().plusMinutes(30);
+        LocalDateTime reminderEnd = reminderStart.plusMinutes(1);
 
+        List<Booking> upcomingBookings = bookingRepository.findBookingsStartingBetween(reminderStart, reminderEnd);
         for (Booking booking : upcomingBookings) {
             sendNotification(booking.getUser().getId(), "Reminder: Your parking starts in 30 minutes!");
         }
     }
 
-    //  Send a reminder 15 minutes before booking ends**
+    // Send a reminder 15 minutes before booking ends
     @Scheduled(fixedRate = 60000) // Every 60 seconds
     public void sendEndBookingReminders() {
-        LocalDateTime reminderTime = LocalDateTime.now().plusMinutes(15);
-        List<Booking> endingBookings = bookingRepository.findBookingsEndingAt(reminderTime);
+        // Define a 1-minute window
+        LocalDateTime reminderStart = LocalDateTime.now().plusMinutes(15);
+        LocalDateTime reminderEnd = reminderStart.plusMinutes(1);
 
+        List<Booking> endingBookings = bookingRepository.findBookingsEndingBetween(reminderStart, reminderEnd);
         for (Booking booking : endingBookings) {
             sendNotification(booking.getUser().getId(), "Reminder: Your parking ends in 15 minutes!");
         }
     }
+
 
     // send a notification when a payment is made**
     public void notifyPaymentSuccess(Long userId) {
